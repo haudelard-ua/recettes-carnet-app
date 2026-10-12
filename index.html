@@ -402,8 +402,8 @@ function renderSettings(){
   <a class="back" href="#">← Retour</a>
   <section><h4>Synchronisation</h4>
     <form class="stack" id="cf">
-      <label>Compte GitHub<input type="text" id="owner" autocomplete="off" autocapitalize="off" value="${esc(cfg?.owner||"")}" placeholder="ton-pseudo"></label>
-      <label>Dépôt de données<input type="text" id="repo" autocomplete="off" autocapitalize="off" value="${esc(cfg?.repo||"carnet-data")}"></label>
+      <label>Compte GitHub<input type="text" id="owner" autocomplete="off" autocapitalize="off" value="${esc(cfg?.owner||"haudelard-ua")}"></label>
+      <label>Dépôt de données<input type="text" id="repo" autocomplete="off" autocapitalize="off" value="${esc(cfg?.repo||"recettes-carnet-data")}"></label>
       <label>Jeton d'accès<input type="password" id="token" autocomplete="off" value="${esc(cfg?.token||"")}" placeholder="github_pat_…"></label>
       <button class="primary" type="submit">Enregistrer et tester</button>
     </form>
@@ -411,7 +411,7 @@ function renderSettings(){
     <details><summary>Créer le jeton (2 min)</summary><ol class="help">
       <li>Ouvre <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>.</li>
       <li>Nom : <code>carnet</code>. Expiration : la plus longue proposée.</li>
-      <li>Repository access : <b>Only select repositories</b> → <code>carnet-data</code>.</li>
+      <li>Repository access : <b>Only select repositories</b> → <code>recettes-carnet-data</code>.</li>
       <li>Permissions → Repository permissions → <b>Contents : Read and write</b>. Rien d'autre.</li>
       <li>Generate token, copie-le ici. Fais pareil sur chaque appareil (ou réutilise le même jeton).</li>
     </ol></details>
