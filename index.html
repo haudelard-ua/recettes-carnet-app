@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#b5502b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Carnet de recettes</title>
+<style>
+:root{
+  --bg:#faf7f2; --card:#ffffff; --ink:#2b2622; --muted:#7a7068; --line:#e8e1d8;
+  --accent:#b5502b; --accent-soft:#f6e3da; --ok:#3f7d4e; --warn:#a86a00; --chip:#f1ece5;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#1c1a18; --card:#262320; --ink:#efe9e2; --muted:#a59b91; --line:#3a3530;
+         --accent:#e07a50; --accent-soft:#3d2a21; --ok:#7fbf8c; --warn:#e0a84a; --chip:#332f2b; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+.wrap{max-width:860px;margin:0 auto;padding:16px 16px 40px}
+header.top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+header.top h1{font-size:1.5rem;margin:0;font-family:Georgia,"Times New Roman",serif;flex:1}
+.status{font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:6px;cursor:pointer;background:none;border:0;padding:4px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.dot.ok{background:var(--ok)} .dot.warn{background:var(--warn)} .dot.err{background:#c0392b}
+.dot.sync{background:var(--accent);animation:blink .6s infinite alternate}
+input[type=search],input[type=text],input[type=password],input[type=number],input[type=date],select,textarea{
+  font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+input[type=search]{width:100%;margin-bottom:12px}
+button,.btn{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:7px 12px;text-decoration:none;display:inline-block}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button:hover,.btn:hover{border-color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;text-decoration:none;color:inherit;display:block}
+.card:hover{border-color:var(--accent)}
+.card h3{margin:0 0 4px;font-family:Georgia,serif;font-size:1.15rem}
+.card p{margin:0;color:var(--muted);font-size:.92rem}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{background:var(--chip);border-radius:20px;padding:2px 10px;font-size:.8rem;color:var(--muted)}
+.banner{background:var(--accent-soft);border:1px solid var(--accent);border-radius:10px;padding:10px 14px;margin-bottom:12px}
+.back{display:inline-block;margin-bottom:10px;text-decoration:none}
+h2.title{font-family:Georgia,serif;font-size:1.8rem;margin:0 0 4px;line-height:1.2}
+.desc{color:var(--muted);margin:0 0 12px}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:12px 0}
+section h4{margin:0 0 10px;font-size:1rem;text-transform:uppercase;letter-spacing:.04em;color:var(--accent)}
+.scaler{display:flex;flex-wrap:wrap;gap:16px;align-items:center}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{width:40px;height:40px;padding:0;font-size:1.2rem}
+.stepper .val{min-width:110px;text-align:center;font-weight:600}
+.have{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.have input{width:90px}
+.have select{max-width:230px}
+.hint{font-size:.85rem;color:var(--muted)}
+ul.ings{list-style:none;padding:0;margin:0}
+ul.ings li{padding:6px 0;border-bottom:1px dashed var(--line);display:flex;gap:10px}
+ul.ings li:last-child{border-bottom:0}
+ul.ings .q{font-weight:700;white-space:nowrap;min-width:96px}
+.methods{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.methods button.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+ol.steps{padding:0;margin:0;list-style:none;counter-reset:s}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:30px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+ol.steps li:last-child{border-bottom:0}
+ol.steps li::before{content:counter(s);width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem}
+ol.steps li.done{opacity:.45}
+ol.steps li.done::before{content:"✓";background:var(--ok);color:#fff}
+.st-title{font-weight:700;cursor:pointer}
+.st-body b{color:var(--accent)}
+.timer{margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.timer .t{font-variant-numeric:tabular-nums;font-weight:700}
+.timer.ring .t{color:#fff;background:var(--accent);padding:2px 8px;border-radius:6px;animation:blink .6s infinite alternate}
+@keyframes blink{to{opacity:.4}}
+.badge{font-size:.82rem;color:var(--muted);background:var(--chip);padding:2px 8px;border-radius:6px}
+.notes p{margin:0 0 8px}
+.journal .entry{border-left:3px solid var(--accent);padding:4px 10px;margin:8px 0}
+.journal .entry.hist{border-left-color:var(--muted)}
+.journal .meta{font-size:.82rem;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.journal .meta button{padding:0 6px;font-size:.8rem}
+form.stack{display:grid;gap:8px;margin-top:10px}
+form.stack label{display:grid;gap:4px;font-size:.9rem}
+textarea{min-height:80px;width:100%}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.see a{margin-right:10px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:90vw}
+.toast.show{opacity:1}
+ol.help li{margin-bottom:4px}
+code{background:var(--chip);padding:1px 5px;border-radius:4px;font-size:.9em}
+@media print{
+  .back,.scaler .have,.methods,.timer button,.journal form,.toolbar,header.top .status,header.top a{display:none!important}
+  body{background:#fff;color:#000} section{border:0;padding:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   CARNET DE RECETTES — application locale, synchronisée via un dépôt
+   GitHub privé (recettes/*.json + journal/<recette>/*.json).
+   Tout fonctionne hors ligne depuis le cache ; les modifications sont
+   mises en file d'attente et envoyées dès que le réseau revient.
+   ===================================================================== */
+
+/* ---------- Stockage local ---------- */
+const K={cfg:"carnet.cfg",cache:"carnet.cache.v1",queue:"carnet.queue.v1"};
+const store={
+  get(k,d){ try{ const v=JSON.parse(localStorage.getItem(k)); return v??d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){ toast("Stockage local indisponible"); } }
+};
+let cfg=store.get(K.cfg,null);                         // {owner, repo, token, branch}
+let cache=store.get(K.cache,{blobs:{},lastSync:null}); // blobs : chemin -> {sha, data}
+let queue=store.get(K.queue,[]);                       // opérations en attente
+const saveAll=()=>{ store.set(K.cache,cache); store.set(K.queue,queue); };
+
+/* ---------- Utilitaires ---------- */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2600); }
+const today=()=>{ const d=new Date(); return new Date(d-d.getTimezoneOffset()*6e4).toISOString().slice(0,10); };
+const fmtDate=s=>{ const [y,m,d]=String(s).split("-"); return d?`${d}/${m}/${y}`:s; };
+function fmtDur(s){ if(s>=3600){const h=Math.floor(s/3600),m=Math.round(s%3600/60);return m?`${h} h ${m}`:`${h} h`;} return s>=60?`${Math.round(s/60)} min`:`${s} s`; }
+
+/* ---------- Données dérivées du cache ---------- */
+function recipes(){
+  return Object.entries(cache.blobs)
+    .filter(([p,b])=>p.startsWith("recettes/")&&b.data&&b.data.id)
+    .map(([,b])=>b.data).sort((a,b)=>a.title.localeCompare(b.title,"fr"));
+}
+function journalFor(id){
+  return Object.entries(cache.blobs)
+    .filter(([p,b])=>p.startsWith(`journal/${id}/`)&&b.data)
+    .map(([p,b])=>({path:p,sha:b.sha,...b.data}))
+    .sort((a,b)=>(b.date||"").localeCompare(a.date||"")||b.path.localeCompare(a.path));
+}
+
+/* =====================================================================
+   ARRONDIS « HUMAINS »
+   ===================================================================== */
+const roundTo=(v,s)=>Math.round(v/s)*s;
+const nf=(v,d=2)=>v.toLocaleString("fr-FR",{maximumFractionDigits:d});
+function frac(v){
+  const w=Math.floor(v+1e-9), r=Math.round((v-w)*4)/4;
+  const m={0:"",0.25:"¼",0.5:"½",0.75:"¾"};
+  if(r===1) return String(w+1);
+  if(!w) return m[r]||"0";
+  return m[r]?`${w} ${m[r]}`:String(w);
+}
+const stepFor=x=>x<20?1:x<100?5:x<500?10:x<2000?25:50;
+function fmtMetric(x,small,big){ const r=Math.max(1,roundTo(x,stepFor(x))); return r>=1000?`${nf(r/1000)} ${big}`:`${r} ${small}`; }
+const plural=(n,lab)=>n>1?lab[1]:lab[0];
+function fmtQty(ing,f){
+  const v=ing.qty*f;
+  switch(ing.unit){
+    case "g": return fmtMetric(v,"g","kg");
+    case "ml": return fmtMetric(v,"ml","L");
+    case "cs":
+      if(v<0.875){ const c=Math.max(0.25,roundTo(v*3,v*3<1?0.25:0.5)); return `${frac(c)} c. à café`; }
+      if(v>8) return fmtMetric(v*15,"ml","L");
+      return `${frac(roundTo(v,0.5))} c. à soupe`;
+    case "cc":
+      if(v>4.5) return `${frac(roundTo(v/3,0.5))} c. à soupe`;
+      return `${frac(Math.max(0.25,roundTo(v,v<1?0.25:0.5)))} c. à café`;
+    case "pincee": { const n=Math.max(1,Math.round(v)); return `${n} ${n>1?"pincées":"pincée"}`; }
+    case "piece": { const s=ing.step||1, n=Math.max(s,roundTo(v,s)); return `${frac(n)} ${plural(n,ing.label||["",""])}`; }
+  }
+  return nf(v);
+}
+const unitHint=ing=>({g:"g",ml:"ml",cs:"c. à soupe",cc:"c. à café",pincee:"pincées",piece:ing.label?ing.label[1]:"pièces"}[ing.unit]);
+
+/* =====================================================================
+   SYNCHRONISATION GITHUB
+   ===================================================================== */
+const R=()=>`${encodeURIComponent(cfg.owner)}/${encodeURIComponent(cfg.repo)}`;
+const encPath=p=>p.split("/").map(encodeURIComponent).join("/");
+const b64enc=s=>{ const b=new TextEncoder().encode(s); let bin=""; for(const x of b) bin+=String.fromCharCode(x); return btoa(bin); };
+const b64dec=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g,"")),c=>c.charCodeAt(0)));
+
+async function api(path,opts={}){
+  const headers={Authorization:"Bearer "+cfg.token,Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28"};
+  if(opts.body) headers["Content-Type"]="application/json";
+  let res;
+  try{ res=await fetch("https://api.github.com"+path,{...opts,headers,cache:"no-store"}); }
+  catch(e){ const err=new Error("réseau"); err.status=0; throw err; }
+  if(!res.ok){ const err=new Error((await res.json().catch(()=>({}))).message||res.statusText); err.status=res.status; throw err; }
+  return res.status===204?null:res.json();
+}
+
+let syncState={s:cfg?"idle":"none",msg:""}, syncing=false;
+function setStatus(s,msg=""){ syncState={s,msg}; const el=$("status"); if(el) el.outerHTML=statusHTML(); bindStatus(); }
+function statusHTML(){
+  const pend=queue.length?` · ${queue.length} en attente`:"";
+  const last=cache.lastSync?new Date(cache.lastSync).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"}):"jamais";
+  const map={
+    none:["","Synchro non configurée"], idle:["",`Dernière synchro : ${last}${pend}`],
+    sync:["sync","Synchronisation…"], ok:[queue.length?"warn":"ok",`Synchronisé à ${last}${pend}`],
+    offline:["warn",`Hors ligne (cache du ${last})${pend}`], auth:["err","Jeton refusé : vérifie les réglages"],
+    error:["err",syncState.msg||"Erreur de synchro"]
+  };
+  const [cls,txt]=map[syncState.s]||map.idle;
+  return `<button class="status" id="status" title="Synchroniser maintenant"><span class="dot ${cls}"></span>${esc(txt)}</button>`;
+}
+function bindStatus(){ const el=$("status"); if(el) el.onclick=()=>sync(true); }
+
+/* Envoie les opérations en attente, dans l'ordre. */
+async function flush(){
+  while(queue.length){
+    const op=queue[0], url=`/repos/${R()}/contents/${encPath(op.path)}`;
+    const currentSha=async()=>{ try{ return (await api(`${url}?ref=${encodeURIComponent(cfg.branch)}`)).sha; }catch(e){ if(e.status===404) return null; throw e; } };
+    try{
+      if(op.type==="put"){
+        const body={message:op.msg,content:b64enc(JSON.stringify(op.data,null,2)+"\n"),branch:cfg.branch};
+        if(op.sha) body.sha=op.sha;
+        let res;
+        try{ res=await api(url,{method:"PUT",body:JSON.stringify(body)}); }
+        catch(e){
+          if(e.status!==409&&e.status!==422) throw e;          // conflit : le fichier a changé ailleurs
+          const sha=await currentSha(); if(sha) body.sha=sha; else delete body.sha;
+          res=await api(url,{method:"PUT",body:JSON.stringify(body)}); // la dernière écriture gagne
+        }
+        if(cache.blobs[op.path]) cache.blobs[op.path]={sha:res.content.sha,data:op.data};
+      }else if(op.type==="del"){
+        try{ await api(url,{method:"DELETE",body:JSON.stringify({message:op.msg,sha:op.sha,branch:cfg.branch})}); }
+        catch(e){
+          if(e.status===404) {}                                   // déjà supprimé
+          else if(e.status===409||e.status===422){ const sha=await currentSha(); if(sha) await api(url,{method:"DELETE",body:JSON.stringify({message:op.msg,sha,branch:cfg.branch})}); }
+          else throw e;
+        }
+      }
+      queue.shift(); saveAll();
+    }catch(e){
+      if(!e.status||e.status>=500||e.status===401||e.status===403||e.status===429) throw e; // réseau/accès : on réessaiera
+      console.warn("Opération rejetée",op,e); queue.shift(); saveAll(); toast("Une modification a été rejetée par GitHub : "+e.message);
+    }
+  }
+}
+
+/* Récupère l'arbre du dépôt, ne télécharge que les fichiers modifiés. */
+async function sync(manual){
+  if(!cfg){ if(manual) location.hash="#reglages"; return; }
+  if(syncing) return; syncing=true; setStatus("sync");
+  try{
+    if(!cfg.branch){ cfg.branch=(await api(`/repos/${R()}`)).default_branch; store.set(K.cfg,cfg); }
+    await flush();
+    const tree=await api(`/repos/${R()}/git/trees/${encodeURIComponent(cfg.branch)}?recursive=1`);
+    const remote={};
+    for(const t of tree.tree) if(t.type==="blob"&&/^(recettes|journal)\/.+\.json$/.test(t.path)) remote[t.path]=t.sha;
+    const next={};
+    for(const [p,b] of Object.entries(cache.blobs)) if(String(b.sha).startsWith("local:")) next[p]=b; // pas encore envoyés
+    for(const [p,sha] of Object.entries(remote)){
+      if(queue.some(op=>op.type==="del"&&op.path===p)) continue;
+      const old=cache.blobs[p];
+      if(old&&old.sha===sha){ next[p]=old; continue; }
+      try{ const bl=await api(`/repos/${R()}/git/blobs/${sha}`); next[p]={sha,data:JSON.parse(b64dec(bl.content))}; }
+      catch(e){ if(!e.status) throw e; console.warn("Fichier illisible",p,e); }
+    }
+    cache={blobs:next,lastSync:Date.now()}; saveAll();
+    setStatus("ok"); if(manual) toast("Synchronisé");
+  }catch(e){
+    saveAll();
+    if(e.status===401) setStatus("auth");
+    else if(e.status===404) setStatus("error","Dépôt introuvable : vérifie les réglages");
+    else if(e.status===409) setStatus("error","Le dépôt de données est vide");
+    else if(!e.status) setStatus("offline");
+    else setStatus("error",e.message);
+  }finally{ syncing=false; route(true); }
+}
+
+/* Modifications locales → cache immédiat + file d'attente */
+function addJournal(r,date,text){
+  const path=`journal/${r.id}/${date}-${Math.random().toString(36).slice(2,8)}.json`;
+  const data={recipe:r.id,date,text};
+  cache.blobs[path]={sha:"local:"+Date.now(),data};
+  queue.push({type:"put",path,data,msg:`Journal : ${r.title} (${date})`});
+  saveAll(); route(); sync();
+}
+function deleteJournal(e,title){
+  if(String(e.sha).startsWith("local:")) queue=queue.filter(op=>op.path!==e.path);
+  else queue.push({type:"del",path:e.path,sha:e.sha,msg:`Journal : suppression (${title}, ${e.date})`});
+  delete cache.blobs[e.path]; saveAll(); route(); sync();
+}
+function putRecipe(rec){
+  const path=`recettes/${rec.id}.json`, old=cache.blobs[path];
+  const sha=old&&!String(old.sha).startsWith("local:")?old.sha:undefined;
+  queue=queue.filter(op=>!(op.type==="put"&&op.path===path));
+  cache.blobs[path]={sha:old?.sha||"local:"+Date.now(),data:rec};
+  queue.push({type:"put",path,data:rec,sha,msg:`${old?"Mise à jour":"Ajout"} : ${rec.title}`});
+  saveAll(); route(); sync();
+}
+function validRecipe(o){
+  if(!o||typeof o!=="object") return "Ce n'est pas un objet JSON.";
+  if(!/^[a-z0-9-]+$/.test(o.id||"")) return "Champ « id » manquant ou invalide (minuscules, chiffres, tirets).";
+  if(!o.title) return "Champ « title » manquant.";
+  if(!Array.isArray(o.ings)) return "Champ « ings » manquant.";
+  if(!Array.isArray(o.steps)&&!Array.isArray(o.methods)) return "Il faut « steps » ou « methods ».";
+  if(!o.yield||!o.yield.n||!o.yield.label) return "Champ « yield » manquant.";
+  return null;
+}
+
+/* =====================================================================
+   RENDU
+   ===================================================================== */
+const app=$("app");
+const state={f:1,haveId:null,method:0,done:new Set(),q:"",rid:null};
+const header=title=>`<header class="top"><h1>${title}</h1>${statusHTML()}<a class="btn" href="#reglages" title="Réglages">⚙</a></header>`;
+
+function renderHome(){
+  const q=state.q.toLowerCase();
+  const list=recipes().filter(r=>(r.title+" "+(r.tags||[]).join(" ")+" "+(r.desc||"")).toLowerCase().includes(q));
+  app.innerHTML=`${header("Carnet de recettes")}
+  ${!cfg?`<div class="banner">Pour charger tes recettes, configure la synchro dans les <a href="#reglages">réglages</a>.</div>`:""}
+  <input type="search" id="q" placeholder="Rechercher une recette, un ingrédient, un tag…" value="${esc(state.q)}">
+  <div class="grid">${list.map(r=>{ const n=journalFor(r.id).length; return `
+    <a class="card" href="#r/${r.id}"><h3>${esc(r.title)}</h3><p>${esc(r.desc||"")}</p>
+    <div class="chips">${(r.tags||[]).map(t=>`<span class="chip">${esc(t)}</span>`).join("")}${n?`<span class="chip">📓 ${n}</span>`:""}</div></a>`;}).join("")}
+  </div>
+  ${cfg&&!list.length?`<p class="hint">${state.q?"Aucune recette ne correspond.":"Aucune recette pour l'instant. Touche l'indicateur de synchro pour actualiser."}</p>`:""}`;
+  bindStatus();
+  $("q").oninput=e=>{ state.q=e.target.value; const pos=e.target.selectionStart; renderHome(); const n=$("q"); n.focus(); n.setSelectionRange(pos,pos); };
+}
+
+function renderRecipe(r){
+  const steps=r.methods?r.methods[Math.min(state.method,r.methods.length-1)].steps:r.steps;
+  const f=state.f, y=r.yield, nServ=y.n*f;
+  const isInt=Math.abs(nServ-Math.round(nServ))<0.01;
+  const shown=isInt?Math.round(nServ):Math.max(0.5,roundTo(nServ,0.5));
+  const servTxt=(isInt?"":"≈ ")+frac(shown);
+  const qrep=t=>String(t).replace(/\{q:([\w-]+)\}/g,(m,id)=>{ const ing=r.ings.find(i=>i.id===id); return ing?`<b>${fmtQty(ing,f)}</b>`:m; });
+  const J=journalFor(r.id);
+  const all=recipes();
+  app.innerHTML=`${header("")}
+  <a class="back" href="#">← Toutes les recettes</a>
+  <h2 class="title">${esc(r.title)}</h2><p class="desc">${esc(r.desc||"")}</p>
+  ${r.see?.length?`<p class="see">À servir avec : ${r.see.map(s=>all.some(x=>x.id===s.id)?`<a href="#r/${s.id}">${esc(s.label)}</a>`:esc(s.label)).join(" ")}</p>`:""}
+
+  <section><h4>Quantités</h4><div class="scaler">
+    <div class="stepper"><button id="minus" aria-label="Moins">−</button>
+      <span class="val">${servTxt} ${plural(shown,y.label)}</span>
+      <button id="plus" aria-label="Plus">+</button></div>
+    <div class="have"><span class="hint">ou j'ai</span>
+      <input type="number" id="haveQty" min="0" step="any" inputmode="decimal" placeholder="qté">
+      <select id="haveIng">${r.ings.map(i=>`<option value="${i.id}" ${state.haveId===i.id?"selected":""}>${unitHint(i)} – ${esc(i.label?i.label[0]:String(i.name).replace(/^(de |d')/,""))}</option>`).join("")}</select>
+      <button id="haveGo">Calculer</button>
+      ${Math.abs(f-1)>1e-9?`<button id="reset">Recette de base</button>`:""}
+    </div></div></section>
+
+  <section><h4>Ingrédients</h4><ul class="ings">
+    ${r.ings.map(i=>`<li><span class="q">${fmtQty(i,f)}</span><span>${esc(i.name)}</span></li>`).join("")}
+  </ul></section>
+
+  <section><h4>Préparation</h4>
+    ${r.methods?`<div class="methods">${r.methods.map((m,k)=>`<button data-m="${k}" class="${k===state.method?"on":""}">${esc(m.name)}</button>`).join("")}</div>`:""}
+    <ol class="steps">${steps.map((s,k)=>`
+      <li class="${state.done.has(k)?"done":""}">
+        <div><div class="st-title" data-tog="${k}">${esc(s.title)}</div>
+        <div class="st-body">${qrep(s.text)}</div>
+        ${s.t?`<div class="timer" id="tm${k}"><button data-t="${k}" data-s="${s.t}">⏱ ${fmtDur(s.t)}</button><span class="t"></span></div>`:""}
+        ${s.long?`<div class="timer"><span class="badge">⏳ ${esc(s.long)}</span></div>`:""}
+        </div></li>`).join("")}
+    </ol>
+    <p class="hint">Touche le titre d'une étape pour la cocher.</p></section>
+
+  ${r.notes?.length?`<section class="notes"><h4>Pourquoi ces choix</h4>${r.notes.map(n=>`<p>• ${n}</p>`).join("")}
+    ${r.sources?.length?`<p class="hint">Sources : ${r.sources.map(s=>`<a href="${esc(s[1])}" target="_blank" rel="noopener">${esc(s[0])}</a>`).join(" · ")}</p>`:""}
+  </section>`:""}
+
+  <section class="journal"><h4>Journal d'essais</h4>
+    ${J.map((e,k)=>`<div class="entry ${e.integre?"hist":""}"><div class="meta">${fmtDate(e.date)}
+        ${e.integre?"<span>· intégré à la recette</span>":""}
+        ${String(e.sha).startsWith("local:")?"<span>· en attente d'envoi</span>":""}
+        <button data-del="${k}">supprimer</button></div>
+        <div>${esc(e.text).replace(/\n/g,"<br>")}</div></div>`).join("")||`<p class="hint">Pas encore d'essai noté.</p>`}
+    <form class="stack" id="jf"><input type="date" id="jd" value="${today()}">
+      <textarea id="jt" placeholder="Ce qui a marché, ce qui a raté, ce que tu changerais…"></textarea>
+      <button class="primary" type="submit">Ajouter au journal</button></form>
+  </section>`;
+
+  bindStatus();
+  const go=()=>renderRecipe(r);
+  const setServ=n=>{ state.f=Math.max(1,n)/y.n; state.haveId=null; go(); };
+  $("minus").onclick=()=>setServ((Math.ceil(nServ-1e-9)-1)||1);
+  $("plus").onclick=()=>setServ(Math.floor(nServ+1e-9)+1);
+  $("haveGo").onclick=()=>{
+    const id=$("haveIng").value, q=parseFloat(String($("haveQty").value).replace(",","."));
+    if(!(q>0)) return toast("Entre une quantité");
+    state.f=q/r.ings.find(i=>i.id===id).qty; state.haveId=id; go();
+  };
+  if($("reset")) $("reset").onclick=()=>{ state.f=1; state.haveId=null; go(); };
+  app.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{ state.method=+b.dataset.m; state.done.clear(); go(); });
+  app.querySelectorAll("[data-tog]").forEach(t=>t.onclick=()=>{ const k=+t.dataset.tog; state.done.has(k)?state.done.delete(k):state.done.add(k); t.closest("li").classList.toggle("done"); });
+  app.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>startTimer(+b.dataset.t,+b.dataset.s,b));
+  $("jf").onsubmit=e=>{ e.preventDefault(); const text=$("jt").value.trim(); if(!text) return;
+    addJournal(r,$("jd").value||today(),text); toast(cfg?"Ajouté au journal":"Ajouté (synchro non configurée)"); };
+  app.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{ if(!confirm("Supprimer cette entrée ?")) return; deleteJournal(J[+b.dataset.del],r.title); });
+}
+
+function renderSettings(){
+  app.innerHTML=`${header("Réglages")}
+  <a class="back" href="#">← Retour</a>
+  <section><h4>Synchronisation</h4>
+    <form class="stack" id="cf">
+      <label>Compte GitHub<input type="text" id="owner" autocomplete="off" autocapitalize="off" value="${esc(cfg?.owner||"")}" placeholder="ton-pseudo"></label>
+      <label>Dépôt de données<input type="text" id="repo" autocomplete="off" autocapitalize="off" value="${esc(cfg?.repo||"carnet-data")}"></label>
+      <label>Jeton d'accès<input type="password" id="token" autocomplete="off" value="${esc(cfg?.token||"")}" placeholder="github_pat_…"></label>
+      <button class="primary" type="submit">Enregistrer et tester</button>
+    </form>
+    <p class="hint">Le jeton reste sur cet appareil. Il ne sert qu'à lire et écrire dans le dépôt de données.</p>
+    <details><summary>Créer le jeton (2 min)</summary><ol class="help">
+      <li>Ouvre <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a>.</li>
+      <li>Nom : <code>carnet</code>. Expiration : la plus longue proposée.</li>
+      <li>Repository access : <b>Only select repositories</b> → <code>carnet-data</code>.</li>
+      <li>Permissions → Repository permissions → <b>Contents : Read and write</b>. Rien d'autre.</li>
+      <li>Generate token, copie-le ici. Fais pareil sur chaque appareil (ou réutilise le même jeton).</li>
+    </ol></details>
+  </section>
+
+  <section><h4>Ajouter ou remplacer une recette</h4>
+    <p class="hint">Colle ici le JSON d'une recette (si Claude n'a pas accès au dépôt). Même « id » = remplacement.</p>
+    <form class="stack" id="rf"><textarea id="rj" placeholder='{"id":"…","title":"…", …}'></textarea>
+      <button type="submit">Enregistrer la recette</button></form>
+  </section>
+
+  <section><h4>Données</h4>
+    <div class="toolbar" style="margin-top:0">
+      <button id="exp">Exporter une sauvegarde</button>
+      <button id="wipe">Vider le cache local</button>
+    </div>
+    <p class="hint">${recipes().length} recettes en cache · ${Object.keys(cache.blobs).filter(p=>p.startsWith("journal/")).length} entrées de journal · ${queue.length} modification(s) en attente.</p>
+  </section>`;
+  bindStatus();
+  $("cf").onsubmit=async e=>{ e.preventDefault();
+    const nc={owner:$("owner").value.trim(),repo:$("repo").value.trim(),token:$("token").value.trim()};
+    if(!nc.owner||!nc.repo||!nc.token) return toast("Remplis les trois champs");
+    const prev=cfg; cfg=nc;
+    try{ const info=await api(`/repos/${R()}`); cfg.branch=info.default_branch; store.set(K.cfg,cfg); toast("Connexion OK"); location.hash="#"; sync(); }
+    catch(err){ cfg=prev; toast(err.status===401?"Jeton refusé":err.status===404?"Dépôt introuvable (ou jeton sans accès à ce dépôt)":"Impossible de joindre GitHub"); }
+  };
+  $("rf").onsubmit=e=>{ e.preventDefault();
+    let o; try{ o=JSON.parse($("rj").value); }catch(err){ return toast("JSON invalide : "+err.message); }
+    const pb=validRecipe(o); if(pb) return toast(pb);
+    putRecipe(o); toast("Recette enregistrée"); location.hash="#r/"+o.id; };
+  $("exp").onclick=()=>{ const blob=new Blob([JSON.stringify({recettes:recipes(),journal:Object.fromEntries(Object.entries(cache.blobs).filter(([p])=>p.startsWith("journal/")).map(([p,b])=>[p,b.data]))},null,2)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`carnet-sauvegarde-${today()}.json`; a.click(); };
+  $("wipe").onclick=()=>{ if(queue.length&&!confirm(`${queue.length} modification(s) pas encore envoyée(s) seront perdues. Continuer ?`)) return;
+    cache={blobs:{},lastSync:null}; queue=[]; saveAll(); toast("Cache vidé"); sync(); };
+}
+
+/* ---------- Minuteurs : bip, vibration, écran allumé ---------- */
+const timers={}; let wake=null;
+async function keepAwake(on){ try{ if(on&&!wake&&navigator.wakeLock) wake=await navigator.wakeLock.request("screen"); if(!on&&wake&&!Object.keys(timers).length){ wake.release(); wake=null; } }catch(e){} }
+function beep(){ try{ const a=new (window.AudioContext||window.webkitAudioContext)();
+  [0,.4,.8].forEach(d=>{ const o=a.createOscillator(),g=a.createGain(); o.frequency.value=880; o.connect(g); g.connect(a.destination); g.gain.value=.25; o.start(a.currentTime+d); o.stop(a.currentTime+d+.25); }); }catch(e){} }
+function startTimer(k,secs,btn){
+  const box=$("tm"+k), out=box.querySelector(".t");
+  const idle=()=>{ box.classList.remove("ring"); out.textContent=""; btn.textContent="⏱ "+fmtDur(secs); btn.onclick=()=>startTimer(k,secs,btn); keepAwake(false); };
+  if(timers[k]){ clearInterval(timers[k]); delete timers[k]; idle(); return; }
+  const end=Date.now()+secs*1000; btn.textContent="Arrêter"; keepAwake(true);
+  const tick=()=>{ const s=Math.max(0,Math.round((end-Date.now())/1000));
+    out.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
+    if(s<=0){ clearInterval(timers[k]); delete timers[k]; box.classList.add("ring"); out.textContent="Terminé !"; btn.textContent="OK";
+      beep(); try{ navigator.vibrate&&navigator.vibrate([300,150,300]); }catch(e){} btn.onclick=idle; } };
+  tick(); timers[k]=setInterval(tick,1000);
+}
+
+/* ---------- Routage : #  ·  #r/<id>  ·  #reglages ---------- */
+function route(fromSync){
+  const h=location.hash.slice(1);
+  // Après une synchro, ne pas re-dessiner si un minuteur tourne ou si tu es en train d'écrire
+  const ae=document.activeElement, typing=ae&&/^(TEXTAREA|INPUT)$/.test(ae.tagName)&&ae.value&&ae.type!=="search";
+  if(fromSync&&(Object.keys(timers).length||typing)){ setStatus(syncState.s,syncState.msg); return; }
+  if(h==="reglages") return renderSettings();
+  if(h.startsWith("r/")){
+    const id=h.slice(2), r=recipes().find(x=>x.id===id);
+    if(r){ if(state.rid!==id){ state.rid=id; state.f=1; state.haveId=null; state.method=0; state.done.clear(); if(!fromSync) window.scrollTo(0,0); } return renderRecipe(r); }
+  }
+  state.rid=null; renderHome();
+}
+window.addEventListener("hashchange",()=>route());
+window.addEventListener("online",()=>sync());
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") sync(); });
+route(); sync();
+
+/* ---------- Mode hors ligne (application installable) ---------- */
+if("serviceWorker" in navigator&&location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
